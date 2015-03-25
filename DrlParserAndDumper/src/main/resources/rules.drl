@@ -1,0 +1,37 @@
+package org.jboss.ddoyle.drools;
+
+import org.jboss.ddoyle.drools.model.SimpleEvent
+import org.jboss.ddoyle.drools.model.AnotherSimpleEvent
+
+declare SimpleEvent
+    @role( event )
+    @timestamp( timestamp )
+    @expires( 5d )
+end
+
+declare AnotherSimpleEvent
+    @role( event )
+    @timestamp( timestamp )
+    @expires( 66d )
+end
+
+
+rule "rule_1"
+    ruleflow-group "rfg1"
+    when
+       $evt: AnotherSimpleEvent ()
+       not SimpleEvent (this after[0, 12h] $evt)
+       not SimpleEvent() 
+    then
+       System.out.println("rule_1");
+end
+
+rule "rule_2"
+    ruleflow-group "rfg1"
+    when
+       $evt: SimpleEvent ()
+       not AnotherSimpleEvent(code==null, this after[0, 24h] $evt)
+       not SimpleEvent(this != $evt, this after[0, 24h] $evt)
+    then
+       System.out.println("rule_2");
+end
